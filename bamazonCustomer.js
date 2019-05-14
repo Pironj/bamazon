@@ -27,6 +27,14 @@ function displayData() {
   var products;
   // var query = "SELECT item_id, product_name, department_name, price, stock_quantity FROM products";
   connection.query(query, function(err, res) {
+    console.log(
+      "\n\n   |----------------------------------------------------------|\n" +
+      "   |                                                          |\n" +
+      "   |                  WELCOME TO OUR STORE                    |\n" +
+      "   |             PLEASE TAKE A LOOK AT OUR WARES              |\n" +
+      "   |                                                          |\n" +
+      "   |----------------------------------------------------------|\n\n"
+    );
     for (var i = 0; i < res.length; i++) {
       products = console.log("Item ID: " + res[i].item_id + " || Product Name: " + res[i].product_name + " || Price: $" + res[i].price);
     }
