@@ -1,6 +1,7 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 var dotenv = require("dotenv")
+var table = require("console.table");
 dotenv.config();
 
 var connection = mysql.createConnection({
@@ -40,16 +41,58 @@ function menuOptions () {
     .then(function(answer) {
       switch (answer.menu) {
         case "View products for sale":
-        console.log("view products");
-          productView();
+        connection.query("SELECT item_id,product_name,price,stock_quantity FROM products ORDER BY item_id ASC", function(err, res) {
+          if (err) throw err;
+          console.table(res);
+          // console.table(res, ["item_id", "product_name", "price", "stock_quantity"]);
+          menuOptions();
+        });
           break;
         case "View low inventory":
-        console.log("low inv");
-          lowInv();
+        connection.query("SELECT item_id,product_name,price,stock_quantity FROM products WHERE stock_quantity < 5", function(err, res) {
+          if (err) throw err;
+          console.table(res);
+          // console.table(res, ["item_id", "product_name", "price", "stock_quantity"]);
+          menuOptions();
+        });
           break;
         case "Add to inventory":
-        console.log("add inv");
-          addInv();
+          inquirer
+          .prompt([
+            {
+            type: "list",
+            name: "productName",
+            message: "Which product would you like to add more inventory to?: ",
+            choices: [
+              'Yeezy 350 Boost V2 - Clay',
+              'Yeezy 350 Boost V2 - Static Reflective',
+              'Air Jordan 1 - Defiant Couture',
+              'Mortal Kombat 11',
+              'Overcooked! 2',
+              'Supreme Hoodie Box Logo - Grey',
+              'Supreme Hoodie Box Logo - Black',
+              'ROKU Smart TV TLC 50 in',
+              'Samsung Smart TV 60 in',
+              'Canon Camera EOS M50',
+            ],
+            },
+            {
+              type: "input",
+              name: "addMore",
+              message: "How many units are you adding?: "
+            }
+          ])
+          .then(function(answer) {
+            updateItem = answer.productName;
+            console.log(updateItem);
+            connection.query(
+              "UPDATE products SET stock_quantity = answer.addMore WHERE product_name = updateItem", 
+            function(err, res2) {
+              if (err) throw err;
+              console.table(res2, ["item_id", "product_name", "price", "stock_quantity"]);
+              menuOptions();
+            });
+          });
           break;
         case "Add new product":
         console.log("add new product");
