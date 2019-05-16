@@ -1,6 +1,7 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-var dotenv = require("dotenv")
+var table = require("console.table");
+var dotenv = require("dotenv");
 dotenv.config();
 
 var connection = mysql.createConnection({
@@ -36,19 +37,11 @@ function displayData() {
       "   |                                                          |\n" +
       "   |----------------------------------------------------------|\n\n"
     );
-    console.table(res, ["item_id", "product_name", "price"]);
-    // for (var i = 0; i < res.length; i++) {
-    //   console.log("Item ID: " + res[i].item_id + " || Product Name: " + res[i].product_name + " || Price: $" + res[i].price);
-    // }
-    // console.table(res);
+    console.table(res);
     buyProduct();
   });
 }
-// console.log("Item ID: " + res[i].item_id + " || Product Name: " + res[i].product_name + " || Department Name: " + res[i].department_name + " || Price: $" + res[i].price + " || Stock Quantity: " + res[i].stock_quantity);
-// The app should then prompt users with two messages.
 
-// The first should ask them the ID of the product they would like to buy.
-// The second message should ask how many units of the product they would like to buy.
 // Variables to store user purchase requests
 // selected item id
 var tableLength = 0;
@@ -71,7 +64,7 @@ function buyProduct() {
       {
         name: "item",
         type: "input",
-        message: "Type the ID of the product they would like to buy?: "
+        message: "Type the ID of the product you would like to buy?: "
       },
       {
         name: "quantity",
@@ -85,21 +78,18 @@ function buyProduct() {
       queryG = "SELECT item_id, product_name, price, stock_quantity FROM products WHERE item_id = ?";
       connection.query(queryG, [ answer.item ], function(err, res) {
         if (err) throw err;
-        console.log(itemPurchase);
-        console.log(res);
-        console.log(tableLength);
         if (itemPurchase > tableLength) {
-          console.log("Item does not exist in our Database.");
+          console.log("\nItem does not exist in our Database.\n");
           buyProduct();
           return;
         }
         if (!itemPurchase.match(/^[0-9]+$/)) {
-          console.log("Please enter a valid item id #");
+          console.log("\nPlease enter a valid item id #\n");
           buyProduct();
           return;
         }
         if (!numPurchase.match(/^[0-9]+$/)) {
-          console.log("Please enter a number for quantity");
+          console.log("\nPlease enter a number for quantity\n");
           buyProduct();
           return;
         }
@@ -109,7 +99,7 @@ function buyProduct() {
           itemName = res[i].product_name;
           itemBeginningStock = res[i].stock_quantity;
           if(answer.quantity > res[i].stock_quantity) {
-            console.log("Insufficient quantity! We have only " + res[i].stock_quantity + " available.");
+            console.log("\nInsufficient quantity! We have only " + res[i].stock_quantity + " available.\n");
             buyProduct();
           } 
           else {
@@ -145,7 +135,7 @@ function buyProduct() {
             .then(function(answer) {
               if (err) throw err;
               if (answer.validatePurchase === false) {
-                console.log("Ok take a look at our other items for sale");
+                console.log("\nOk take a look at our other items for sale\n");
                 displayData();
                 return;
               }
@@ -160,7 +150,7 @@ function buyProduct() {
                       item_id: itemID
                     }
                   ]);
-                console.log("You're purchase is confirmed." + "\n" + "Thank You!");
+                console.log("\nYou're purchase is confirmed." + "\n" + "Thank You!\n");
               }
               displayData();
             })

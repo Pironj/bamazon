@@ -82,7 +82,13 @@ function menuOptions () {
             {
               type: "input",
               name: "addMore",
-              message: "How many units are you adding?: "
+              message: "How many units are you adding?: ",
+              validate: function(value) {
+                if (isNaN(value) === false) {
+                  return true;
+                }
+                return false;
+              }
             }
           ])
           .then(function(answer) {
