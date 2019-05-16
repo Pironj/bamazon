@@ -22,7 +22,10 @@ connection.connect(function(err) {
   if (err) throw err;
   menuOptions();
 });
-
+var updateItem;
+var beginningStock;
+var addStock = 0;
+var addInvRes;
 function menuOptions () {
   inquirer
   .prompt([
@@ -57,6 +60,15 @@ function menuOptions () {
         });
           break;
         case "Add to inventory":
+        connection.query("SELECT * FROM products", function(err, res) {
+          if (err) throw err;
+          addInvRes = res;
+          // for (i = 0; i < res.length; i++) {
+          //   beginningStock = res[i].stock_quantity;
+          //   // updateItem = res[i].product_name;
+          // }
+          // console.table(res);
+        })
           inquirer
           .prompt([
             {
@@ -83,15 +95,33 @@ function menuOptions () {
             }
           ])
           .then(function(answer) {
-            updateItem = answer.productName;
-            console.log(updateItem);
+            console.table(addInvRes);
+            for (i = 0; i < addInvRes.length; i++) {
+              if (answer.productName === addInvRes[i].product_name) {
+                // console.log(addInvRes[i]);
+                beginningStock = addInvRes[i].stock_quantity;
+                console.log(beginningStock);
+                console.log(addStock);
+              }
+            }
+            addStock = parseFloat(answer.addMore);
+            console.log(beginningStock + addStock);
             connection.query(
-              "UPDATE products SET stock_quantity = answer.addMore WHERE product_name = updateItem", 
-            function(err, res2) {
-              if (err) throw err;
-              console.table(res2, ["item_id", "product_name", "price", "stock_quantity"]);
+              "UPDATE products SET ? WHERE ?", 
+              [
+                {
+                  stock_quantity: beginningStock + addStock
+                },
+                {
+                  product_name: answer.productName
+                }
+              ]);
+              // [ beginningStock + addStock ],
+              // [ updateItem ],
+              // console.log(stock_quantity)
+              // console.log(updateItem);
+              console.table(["item_id", "product_name", "price", "stock_quantity"]);
               menuOptions();
-            });
           });
           break;
         case "Add new product":
