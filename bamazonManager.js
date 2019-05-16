@@ -63,30 +63,19 @@ function menuOptions () {
         connection.query("SELECT * FROM products", function(err, res) {
           if (err) throw err;
           addInvRes = res;
-          // for (i = 0; i < res.length; i++) {
-          //   beginningStock = res[i].stock_quantity;
-          //   // updateItem = res[i].product_name;
-          // }
-          // console.table(res);
-        })
           inquirer
           .prompt([
             {
             type: "list",
             name: "productName",
+            choices: function() {
+              var choiceArray = [];
+              for (var i = 0; i < res.length; i++) {
+                choiceArray.push(res[i].product_name);
+              }
+              return choiceArray;
+            },
             message: "Which product would you like to add more inventory to?: ",
-            choices: [
-              'Yeezy 350 Boost V2 - Clay',
-              'Yeezy 350 Boost V2 - Static Reflective',
-              'Air Jordan 1 - Defiant Couture',
-              'Mortal Kombat 11',
-              'Overcooked! 2',
-              'Supreme Hoodie Box Logo - Grey',
-              'Supreme Hoodie Box Logo - Black',
-              'ROKU Smart TV TLC 50 in',
-              'Samsung Smart TV 60 in',
-              'Canon Camera EOS M50',
-            ],
             },
             {
               type: "input",
@@ -122,11 +111,20 @@ function menuOptions () {
               // console.log(updateItem);
               console.table(["item_id", "product_name", "price", "stock_quantity"]);
               menuOptions();
+            });
           });
-          break;
+            break;
         case "Add new product":
-        console.log("add new product");
-          addProduct();
+          console.log("add new product");
+          connection.query("SELECT * FROM products", function(err, res) {
+            if (err) throw err;
+            inquirer
+              .prompt([
+                {
+                  name: ""
+                }
+              ])
+          });
           break;
       
         default:
