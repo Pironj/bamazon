@@ -46,16 +46,18 @@ function menuOptions () {
         case "View products for sale":
         connection.query("SELECT item_id,product_name,price,stock_quantity FROM products ORDER BY item_id ASC", function(err, res) {
           if (err) throw err;
+          console.log("\n");
           console.table(res);
-          // console.table(res, ["item_id", "product_name", "price", "stock_quantity"]);
+          console.log("\n");
           menuOptions();
         });
           break;
         case "View low inventory":
         connection.query("SELECT item_id,product_name,price,stock_quantity FROM products WHERE stock_quantity < 5", function(err, res) {
           if (err) throw err;
+          console.log("\n");
           console.table(res);
-          // console.table(res, ["item_id", "product_name", "price", "stock_quantity"]);
+          console.log("\n");
           menuOptions();
         });
           break;
@@ -84,17 +86,13 @@ function menuOptions () {
             }
           ])
           .then(function(answer) {
-            console.table(addInvRes);
             for (i = 0; i < addInvRes.length; i++) {
               if (answer.productName === addInvRes[i].product_name) {
-                // console.log(addInvRes[i]);
                 beginningStock = addInvRes[i].stock_quantity;
-                console.log(beginningStock);
-                console.log(addStock);
               }
             }
             addStock = parseFloat(answer.addMore);
-            console.log(beginningStock + addStock);
+            newTotal = beginningStock + addStock;
             connection.query(
               "UPDATE products SET ? WHERE ?", 
               [
@@ -105,25 +103,65 @@ function menuOptions () {
                   product_name: answer.productName
                 }
               ]);
-              // [ beginningStock + addStock ],
-              // [ updateItem ],
-              // console.log(stock_quantity)
-              // console.log(updateItem);
-              console.table(["item_id", "product_name", "price", "stock_quantity"]);
+              console.log("\nUpdated " + answer.productName + " inventory. New stock total: " + newTotal + "\n");
               menuOptions();
             });
           });
             break;
         case "Add new product":
-          console.log("add new product");
           connection.query("SELECT * FROM products", function(err, res) {
             if (err) throw err;
             inquirer
               .prompt([
                 {
-                  name: ""
+                  name: "item",
+                  type: "input",
+                  message: "What product would you like to add to the database?: "
+                },
+                {
+                  name: "department",
+                  type: "input",
+                  message: "What department is this item classified?: "
+                },
+                {
+                  name: "price",
+                  type: "input",
+                  message: "What is the cost of the item?: ",
+                  validate: function(value) {
+                    if (isNaN(value) === false) {
+                      return true;
+                    }
+                    return false;
+                  }
+                },
+                {
+                  name: "stock",
+                  type: "input",
+                  message: "What quantity of items will you be adding to the stock?: ",
+                  validate: function(value) {
+                    if (isNaN(value) === false) {
+                      return true;
+                    }
+                    return false;
+                  }
                 }
               ])
+              .then(function(answer) {
+                connection.query(
+                  "INSERT INTO products SET ?",
+                  {
+                    product_name: answer.item,
+                    department_name: answer.department,
+                    price: answer.price,
+                    stock_quantity: answer.stock
+                  },
+                  function(err) {
+                    if (err) throw err;
+                    console.log("\n\nUpdated your database with new product entries!\n\n");
+                    menuOptions();
+                  }
+                )
+              });
           });
           break;
       
